@@ -1,3 +1,6 @@
+import { supabase } from "@/src/lib/supabase";
+import { AuthError } from "@supabase/auth-js";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -6,14 +9,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   // To deal with possible errors
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<AuthError | null>(null);
+
+  const router = useRouter();
 
   // This function will be called when the submit button is pressed
   // It will call a supabase defined function and pass the user's info to that func.
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // We need to validate our inputs
     // Then we need to see if the account exists already or not (irrelevant, supabase tells us this through error)
     // Then we can pass to supabase
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    // Fail fast!
+    if (error) {
+      setErrorMessage(error);
+      return;
+    }
+    router.replace("/(tabs)");
   };
 
   return (
@@ -29,7 +46,7 @@ export default function LoginPage() {
         <Text>Login</Text>
       </TouchableOpacity>
 
-      {error && <Text>{error}</Text>}
+      {errorMessage && <Text>{errorMessage.message}</Text>}
     </View>
   );
 }
