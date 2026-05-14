@@ -9,11 +9,14 @@
 
 import { supabase } from "@/src/lib/supabase";
 import { Session } from "@supabase/supabase-js";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function RootLayout() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const router = useRouter();
 
   // This useEffect is for all the init. related to auth
   useEffect(() => {
@@ -43,6 +46,18 @@ export default function RootLayout() {
   }, []);
 
   // This useEffect is for all nav related stuff for now
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // Can't navigate if we are still loading!
+    if (isLoading) {
+      return;
+    }
+
+    // If we have an active session, take me to tabs
+    if (currentSession) {
+      router.replace("/(tabs)");
+    } else {
+      router.replace("/(auth)/login");
+    }
+  }, []);
   return <></>;
 }
