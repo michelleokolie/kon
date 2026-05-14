@@ -9,8 +9,10 @@
 
 import { supabase } from "@/src/lib/supabase";
 import { Session } from "@supabase/supabase-js";
-import { useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
@@ -58,6 +60,11 @@ export default function RootLayout() {
     } else {
       router.replace("/(auth)/login");
     }
-  }, []);
-  return <></>;
+  }, [currentSession, isLoading]);
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      {isLoading ? <Text>Loading..</Text> : <Slot />}
+    </SafeAreaView>
+  );
 }
