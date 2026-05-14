@@ -26,7 +26,7 @@ export default function LoginPage() {
     // Then we need to see if the account exists already or not (irrelevant, supabase tells us this through error)
     // Then we can pass to supabase
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -58,6 +58,11 @@ export default function LoginPage() {
       </TouchableOpacity>
 
       {errorMessage && <Text>{errorMessage.message}</Text>}
+
+      {/* Button for signing up */}
+      <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+        <Text>{"Don't have an account? Sign up"}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
