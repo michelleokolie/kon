@@ -39,18 +39,6 @@ export default function LoginPage() {
     router.replace("/(tabs)");
   };
 
-  // Styles
-  const styles = StyleSheet.create({
-    input: {
-      width: "80%",
-      borderWidth: 1,
-      borderColor: "#ccc",
-      borderRadius: 8,
-      padding: 12,
-      marginBottom: 12,
-    },
-  });
-
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <TextInput
@@ -73,3 +61,15 @@ export default function LoginPage() {
     </View>
   );
 }
+
+// Styles
+const styles = StyleSheet.create({
+  input: {
+    width: "80%",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+});
