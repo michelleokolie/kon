@@ -2,7 +2,13 @@ import { supabase } from "@/src/lib/supabase";
 import { AuthError } from "@supabase/auth-js";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,13 +39,30 @@ export default function LoginPage() {
     router.replace("/(tabs)");
   };
 
+  // Styles
+  const styles = StyleSheet.create({
+    input: {
+      width: "80%",
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 12,
+    },
+  });
+
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <TextInput value={email} onChangeText={(text) => setEmail(text)} />
+      <TextInput
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+        style={styles.input}
+      />
       <TextInput
         value={password}
         onChangeText={(text) => setPassword(text)}
         secureTextEntry
+        style={styles.input}
       />
 
       <TouchableOpacity onPress={handleLogin}>
