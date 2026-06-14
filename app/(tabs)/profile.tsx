@@ -1,10 +1,13 @@
 import { supabase } from "@/src/lib/supabase";
+import { useTheme } from "@/src/theme/context";
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ProfilePage() {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  const { colours, toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,27 +25,42 @@ export default function ProfilePage() {
     fetchUser();
   }, []);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colours.background,
+    },
+    profileCircle: {
+      height: 72,
+      width: 72,
+      borderRadius: 36,
+      backgroundColor: colours.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    text: {
+      color: colours.text,
+    },
+  });
+
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={styles.container}>
       {isLoading ? (
         <Text>...</Text>
       ) : (
         <>
-          <View
-            style={{
-              height: 72,
-              width: 72,
-              borderRadius: 36,
-              backgroundColor: "lightblue",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <View style={styles.profileCircle}>
             <Text>{username.charAt(0).toUpperCase()}</Text>
           </View>
-          <Text>{username}</Text>
+          <Text style={styles.text}>{username}</Text>
           <TouchableOpacity onPress={() => supabase.auth.signOut()}>
-            <Text>Sign out</Text>
+            <Text style={styles.text}>Sign out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => toggleTheme()}>
+            <Text style={styles.text}>Change Theme</Text>
           </TouchableOpacity>
         </>
       )}
