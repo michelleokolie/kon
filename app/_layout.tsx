@@ -8,11 +8,12 @@
 // 4. Based on state, send to auth or tabs
 
 import { supabase } from "@/src/lib/supabase";
+import { ThemeProvider } from "@/src/theme/context";
 import { Session } from "@supabase/supabase-js";
 import { Slot, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
@@ -63,8 +64,12 @@ export default function RootLayout() {
   }, [currentSession, isLoading]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      {isLoading ? <Text>Loading..</Text> : <Slot />}
-    </SafeAreaView>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1 }}>
+          {isLoading ? <Text>Loading..</Text> : <Slot />}
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
