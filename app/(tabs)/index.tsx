@@ -12,6 +12,7 @@ export default function HomePage() {
   const [currentStatus, setCurrentStatus] = useState("free");
   const [currentNote, setCurrentNote] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { colours } = useTheme();
   const styles = makeStyles(colours);
 
@@ -22,8 +23,21 @@ export default function HomePage() {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
+
+        const { data, error } = await supabase
+          .from("statuses")
+          .select("*")
+          .eq("user_id", user?.id)
+          .single();
+
+        if (data && !error) {
+          setCurrentStatus(data.content);
+          setCurrentNote(data.note);
+        }
       } catch (err) {
         console.log(err);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchUser();
@@ -49,7 +63,6 @@ export default function HomePage() {
   const currentOption =
     STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
 
-  // placeholder feed data — will be replaced with real friends' statuses
   const feedItems: any[] = [];
 
   return (
@@ -63,6 +76,7 @@ export default function HomePage() {
         note={currentNote}
         icon={currentOption.icon}
         onPress={() => setModalVisible(true)}
+        isLoading={isLoading}
       />
 
       <FlatList
