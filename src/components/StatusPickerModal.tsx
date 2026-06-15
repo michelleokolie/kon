@@ -1,6 +1,7 @@
 import { useTheme } from "@/src/theme/context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Keyboard,
   Modal,
   StyleSheet,
   Text,
@@ -23,6 +24,7 @@ export default function StatusPickerModal({
 }: StatusPickerModalProps) {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [noteInput, setNoteInput] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { colours } = useTheme();
   const styles = makeStyles(colours);
 
@@ -39,6 +41,19 @@ export default function StatusPickerModal({
     setNoteInput("");
   };
 
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardWillShow", (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener("keyboardWillHide", () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   return (
     <Modal
       visible={visible}
@@ -47,7 +62,7 @@ export default function StatusPickerModal({
       animationType="slide"
     >
       <View style={styles.backdrop}>
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: keyboardHeight + 24 }]}>
           <View style={styles.handle} />
 
           <Text style={styles.sheetTitle}>how are you right now?</Text>
