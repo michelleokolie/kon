@@ -35,12 +35,19 @@ export default function Page() {
     handleClose();
 
     // Sends to supabase
-    const { data, error } = await supabase.from("statuses").upsert({
-      user_id: user?.id,
-      content: status,
-      note: note,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
+    const { data, error } = await supabase.from("statuses").upsert(
+      {
+        user_id: user?.id,
+        content: status,
+        note: note,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+      {
+        onConflict: "user_id",
+      },
+    );
+
+    if (error) console.log("Supabase error:", error);
   };
 
   const handleClose = () => {
