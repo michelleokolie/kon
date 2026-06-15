@@ -26,5 +26,3 @@ export const STATUS_OPTIONS = [
   { label: "Traveling", value: "traveling", icon: Plane, color: "#06b6d4" },
   { label: "Out", value: "out", icon: MoveRight, color: "#f97316" },
 ] as const;
-
-export type StatusValue = (typeof STATUS_OPTIONS)[number]["value"];

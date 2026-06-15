@@ -1,13 +1,11 @@
 import { useTheme } from "@/src/theme/context";
 import { LucideIcon } from "lucide-react-native";
 import { StyleSheet, Text, View } from "react-native";
-import { StatusValue } from "../constants/constants";
 
-// Should probably have a status type
 type StatusCardProps = {
-  status: StatusValue;
+  status: string;
   icon: LucideIcon;
-  note?: string;
+  note?: string | null;
 };
 // All this does is show current status
 export default function StatusCard({ status, icon, note }: StatusCardProps) {
