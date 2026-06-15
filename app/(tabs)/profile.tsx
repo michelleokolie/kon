@@ -1,18 +1,10 @@
 import { supabase } from "@/src/lib/supabase";
 import { useTheme } from "@/src/theme/context";
-import { LogOut, Moon, Sun } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ProfilePage() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const { colours, toggleTheme, isDark } = useTheme();
@@ -23,8 +15,7 @@ export default function ProfilePage() {
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        setUsername(user?.user_metadata?.username ?? "");
-        setEmail(user?.email ?? "");
+        setUsername(user?.user_metadata.username);
       } catch (err) {
         console.log(err);
       } finally {
@@ -36,54 +27,36 @@ export default function ProfilePage() {
 
   const styles = createStyles(colours);
 
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator color={colours.primary} />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerArea}>
-        <View style={styles.profileCircle}>
-          <Text style={styles.profileInitial}>
-            {username.charAt(0).toUpperCase() || "?"}
-          </Text>
-        </View>
-        <Text style={styles.username}>{username || "Your profile"}</Text>
-        {!!email && <Text style={styles.email}>{email}</Text>}
-      </View>
-
-      <View style={styles.section}>
-        <Pressable
-          onPress={toggleTheme}
-          style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-        >
-          <View style={styles.rowIcon}>
-            {isDark ? (
-              <Sun size={20} color={colours.primary} />
-            ) : (
-              <Moon size={20} color={colours.primary} />
-            )}
-          </View>
-          <View style={styles.rowTextWrap}>
-            <Text style={styles.rowTitle}>Appearance</Text>
-            <Text style={styles.rowSubtitle}>
-              {isDark ? "Dark mode" : "Light mode"}
+      {isLoading ? (
+        <Text style={styles.text}>...</Text>
+      ) : (
+        <>
+          <View style={styles.profileCircle}>
+            <Text style={styles.profileInitial}>
+              {username.charAt(0).toUpperCase()}
             </Text>
           </View>
-        </Pressable>
-      </View>
+          <Text style={styles.username}>{username}</Text>
 
-      <Pressable
-        onPress={() => supabase.auth.signOut()}
-        style={({ pressed }) => [styles.signOut, pressed && styles.pressed]}
-      >
-        <LogOut size={18} color={colours.error} />
-        <Text style={styles.signOutText}>Sign out</Text>
-      </Pressable>
+          <TouchableOpacity
+            onPress={() => supabase.auth.signOut()}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Sign out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => toggleTheme()}
+            style={styles.secondaryButton}
+          >
+            <Text style={styles.secondaryButtonText}>
+              {isDark ? "Light Mode" : "Dark Mode"}
+            </Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
@@ -92,14 +65,13 @@ const createStyles = (colours: ReturnType<typeof useTheme>["colours"]) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colours.background,
-      paddingHorizontal: 20,
-      paddingTop: 32,
-    },
-    center: { justifyContent: "center", alignItems: "center" },
-    headerArea: {
+      justifyContent: "center",
       alignItems: "center",
-      marginBottom: 36,
+      paddingHorizontal: 28,
+      backgroundColor: colours.background,
+    },
+    text: {
+      color: colours.text,
     },
     profileCircle: {
       height: 96,
@@ -111,68 +83,40 @@ const createStyles = (colours: ReturnType<typeof useTheme>["colours"]) =>
       marginBottom: 16,
     },
     profileInitial: {
-      color: colours.onPrimary,
+      color: colours.card,
       fontSize: 38,
       fontWeight: "700",
     },
     username: {
-      fontSize: 24,
-      fontWeight: "700",
       color: colours.text,
-      marginBottom: 4,
+      fontSize: 22,
+      fontWeight: "700",
+      marginBottom: 32,
     },
-    email: {
-      fontSize: 14,
-      color: colours.secondaryText,
-    },
-    section: {
-      backgroundColor: colours.card,
-      borderWidth: 1,
-      borderColor: colours.border,
-      borderRadius: 18,
-      overflow: "hidden",
-      marginBottom: 24,
-    },
-    row: {
-      flexDirection: "row",
+    button: {
+      width: "100%",
+      backgroundColor: colours.primary,
+      borderRadius: 12,
+      paddingVertical: 15,
       alignItems: "center",
-      gap: 14,
-      paddingHorizontal: 16,
-      paddingVertical: 16,
+      marginBottom: 14,
     },
-    rowIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colours.surface,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    rowTextWrap: { flex: 1 },
-    rowTitle: {
+    buttonText: {
+      color: colours.card,
       fontSize: 16,
       fontWeight: "600",
-      color: colours.text,
-      marginBottom: 2,
     },
-    rowSubtitle: {
-      fontSize: 13,
-      color: colours.secondaryText,
-    },
-    signOut: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
+    secondaryButton: {
+      width: "100%",
       borderWidth: 1,
-      borderColor: colours.border,
-      borderRadius: 14,
+      borderColor: colours.surface,
+      borderRadius: 12,
       paddingVertical: 15,
+      alignItems: "center",
     },
-    signOutText: {
-      fontSize: 15,
-      fontWeight: "700",
-      color: colours.error,
+    secondaryButtonText: {
+      color: colours.text,
+      fontSize: 16,
+      fontWeight: "600",
     },
-    pressed: { opacity: 0.7 },
   });
