@@ -6,6 +6,7 @@ export const lightColours = {
   accent: "#A85C78",
   text: "#2C3A47",
   secondaryText: "#8A9BA8",
+  skeletonBlock: "#E0D9CF",
 };
 
 export const darkColours = {
@@ -16,4 +17,5 @@ export const darkColours = {
   accent: "#C47A96",
   text: "#E8E2D9",
   secondaryText: "#7A8490",
+  skeletonBlock: "#3F4550",
 };
