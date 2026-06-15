@@ -1,4 +1,3 @@
-// This is a component that will hold a modal where the user can pick their current status
 import { useTheme } from "@/src/theme/context";
 import { useState } from "react";
 import {
@@ -25,23 +24,7 @@ export default function StatusPickerModal({
   const [selectedStatus, setSelectedStatus] = useState("");
   const [noteInput, setNoteInput] = useState("");
   const { colours } = useTheme();
-
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: colours.card,
-    },
-    input: {
-      width: "80%",
-      borderWidth: 1,
-      borderColor: "#ccc",
-      borderRadius: 8,
-      padding: 12,
-      marginBottom: 12,
-    },
-    text: {
-      color: colours.text,
-    },
-  });
+  const styles = makeStyles(colours);
 
   const handleClose = () => {
     setSelectedStatus("");
@@ -49,40 +32,199 @@ export default function StatusPickerModal({
     onClose();
   };
 
+  const handleSave = () => {
+    if (!selectedStatus) return;
+    onSave(selectedStatus, noteInput);
+    setSelectedStatus("");
+    setNoteInput("");
+  };
+
   return (
-    <Modal visible={visible} onRequestClose={handleClose}>
-      <View style={styles.container}>
-        {STATUS_OPTIONS.map((option) => (
-          <TouchableOpacity
-            key={option.value}
-            onPress={() => setSelectedStatus(option.value)}
-            style={{
-              backgroundColor:
-                selectedStatus === option.value
-                  ? colours.primary
-                  : colours.surface,
-            }}
-          >
-            <Text>{option.label}</Text>
-          </TouchableOpacity>
-        ))}
-        {selectedStatus && (
-          <>
-            <Text style={styles.text}>Enter a note:</Text>
-            <TextInput
-              value={noteInput}
-              onChangeText={(text) => setNoteInput(text)}
-              style={styles.input}
-            />
-          </>
-        )}
-        <TouchableOpacity onPress={() => onSave(selectedStatus, noteInput)}>
-          <Text style={styles.text}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleClose()}>
-          <Text style={styles.text}>Close</Text>
-        </TouchableOpacity>
+    <Modal
+      visible={visible}
+      onRequestClose={handleClose}
+      transparent
+      animationType="slide"
+    >
+      <View style={styles.backdrop}>
+        <View style={styles.sheet}>
+          <View style={styles.handle} />
+
+          <Text style={styles.sheetTitle}>how are you right now?</Text>
+
+          <View style={styles.optionsGrid}>
+            {STATUS_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              const isSelected = selectedStatus === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  onPress={() => setSelectedStatus(option.value)}
+                  style={[
+                    styles.optionButton,
+                    isSelected && styles.optionButtonSelected,
+                  ]}
+                  activeOpacity={0.75}
+                >
+                  <Icon
+                    size={20}
+                    color={isSelected ? "#fff" : colours.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.optionLabel,
+                      isSelected && styles.optionLabelSelected,
+                    ]}
+                  >
+                    {option.label.toLowerCase()}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {selectedStatus ? (
+            <View style={styles.noteSection}>
+              <Text style={styles.noteLabel}>add a note (optional)</Text>
+              <TextInput
+                value={noteInput}
+                onChangeText={setNoteInput}
+                style={styles.noteInput}
+                placeholder="e.g. at the library until 6"
+                placeholderTextColor={colours.secondaryText}
+                maxLength={60}
+              />
+            </View>
+          ) : null}
+
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleClose}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.cancelText}>cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                !selectedStatus && styles.saveButtonDisabled,
+              ]}
+              onPress={handleSave}
+              activeOpacity={0.85}
+              disabled={!selectedStatus}
+            >
+              <Text style={styles.saveText}>save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </Modal>
   );
 }
+
+const makeStyles = (colours: any) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.3)",
+      justifyContent: "flex-end",
+    },
+    sheet: {
+      backgroundColor: colours.card,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: 24,
+      paddingBottom: 40,
+      gap: 20,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colours.surface,
+      alignSelf: "center",
+      marginBottom: 4,
+    },
+    sheetTitle: {
+      fontSize: 16,
+      fontWeight: "500",
+      color: colours.text,
+      letterSpacing: 0.2,
+    },
+    optionsGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+    },
+    optionButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 12,
+      backgroundColor: colours.surface,
+      borderWidth: 1,
+      borderColor: "transparent",
+    },
+    optionButtonSelected: {
+      backgroundColor: colours.primary,
+      borderColor: colours.primary,
+    },
+    optionLabel: {
+      fontSize: 13,
+      color: colours.text,
+      fontWeight: "500",
+    },
+    optionLabelSelected: {
+      color: "#fff",
+    },
+    noteSection: {
+      gap: 8,
+    },
+    noteLabel: {
+      fontSize: 12,
+      color: colours.secondaryText,
+      letterSpacing: 0.3,
+    },
+    noteInput: {
+      backgroundColor: colours.surface,
+      borderRadius: 12,
+      padding: 14,
+      fontSize: 14,
+      color: colours.text,
+    },
+    actions: {
+      flexDirection: "row",
+      gap: 10,
+      marginTop: 4,
+    },
+    cancelButton: {
+      flex: 1,
+      padding: 14,
+      borderRadius: 12,
+      backgroundColor: colours.surface,
+      alignItems: "center",
+    },
+    cancelText: {
+      fontSize: 14,
+      color: colours.secondaryText,
+      fontWeight: "500",
+    },
+    saveButton: {
+      flex: 2,
+      padding: 14,
+      borderRadius: 12,
+      backgroundColor: colours.primary,
+      alignItems: "center",
+    },
+    saveButtonDisabled: {
+      opacity: 0.4,
+    },
+    saveText: {
+      fontSize: 14,
+      color: "#fff",
+      fontWeight: "500",
+    },
+  });

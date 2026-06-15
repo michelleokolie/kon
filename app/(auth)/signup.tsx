@@ -1,44 +1,34 @@
 import { supabase } from "@/src/lib/supabase";
+import { useTheme } from "@/src/theme/context";
 import { AuthError } from "@supabase/auth-js";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
-// This is copy pasted from my login.tsx but added the username and sign up
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-
-  // To deal with possible errors
   const [errorMessage, setErrorMessage] = useState<AuthError | null>(null);
-
   const router = useRouter();
+  const { colours } = useTheme();
 
-  // This function will be called when the submit button is pressed
-  // It will call a supabase defined function and pass the user's info to that func.
   const handleSignup = async () => {
-    // We need to validate our inputs
-    // Then we need to see if the account exists already or not (irrelevant, supabase tells us this through error)
-    // Then we can pass to supabase
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          username,
-        },
-      },
+      options: { data: { username } },
     });
-
-    // Fail fast!
     if (error) {
       setErrorMessage(error);
       return;
@@ -46,47 +36,161 @@ export default function SignupPage() {
     router.replace("/(tabs)");
   };
 
+  const styles = makeStyles(colours);
+
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <TextInput
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        style={styles.input}
-      />
-      <TextInput
-        value={username}
-        onChangeText={(text) => setUsername(text)}
-        style={styles.input}
-      />
-      <TextInput
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        secureTextEntry
-        style={styles.input}
-      />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.inner}>
+          <View style={styles.header}>
+            <Text style={styles.wordmark}>kon</Text>
+            <Text style={styles.tagline}>create your account</Text>
+          </View>
 
-      <TouchableOpacity onPress={handleSignup}>
-        <Text>Sign Up</Text>
-      </TouchableOpacity>
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>username</Text>
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
+                placeholder="yourname"
+                placeholderTextColor={colours.secondaryText}
+                autoCapitalize="none"
+              />
+            </View>
 
-      {errorMessage && <Text>{errorMessage.message}</Text>}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>email</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                placeholder="you@email.com"
+                placeholderTextColor={colours.secondaryText}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-      {/* Button for logging in */}
-      <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-        <Text>{"Already have an account? Log in"}</Text>
-      </TouchableOpacity>
-    </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>password</Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor={colours.secondaryText}
+                secureTextEntry
+              />
+            </View>
+
+            {errorMessage && (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{errorMessage.message}</Text>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleSignup}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.primaryButtonText}>create account</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/login")}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.linkText}>
+                already have an account? sign in
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
-// Styles
-const styles = StyleSheet.create({
-  input: {
-    width: "80%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-  },
-});
+const makeStyles = (colours: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colours.background,
+    },
+    inner: {
+      flex: 1,
+      justifyContent: "center",
+      paddingHorizontal: 32,
+    },
+    header: {
+      marginBottom: 48,
+    },
+    wordmark: {
+      fontSize: 48,
+      fontWeight: "300",
+      color: colours.primary,
+      letterSpacing: 8,
+    },
+    tagline: {
+      fontSize: 13,
+      color: colours.secondaryText,
+      letterSpacing: 1,
+      marginTop: 4,
+    },
+    form: {
+      gap: 16,
+    },
+    inputGroup: {
+      gap: 6,
+    },
+    label: {
+      fontSize: 12,
+      color: colours.secondaryText,
+      letterSpacing: 0.5,
+    },
+    input: {
+      backgroundColor: colours.surface,
+      borderRadius: 12,
+      padding: 14,
+      fontSize: 15,
+      color: colours.text,
+      borderWidth: 1,
+      borderColor: "transparent",
+    },
+    errorBox: {
+      backgroundColor: colours.surface,
+      borderRadius: 10,
+      padding: 12,
+      borderLeftWidth: 3,
+      borderLeftColor: colours.accent,
+    },
+    errorText: {
+      fontSize: 13,
+      color: colours.accent,
+    },
+    primaryButton: {
+      backgroundColor: colours.primary,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: "center",
+      marginTop: 8,
+    },
+    primaryButtonText: {
+      color: "#fff",
+      fontSize: 15,
+      fontWeight: "500",
+      letterSpacing: 0.5,
+    },
+    linkText: {
+      color: colours.secondaryText,
+      fontSize: 13,
+      textAlign: "center",
+      marginTop: 4,
+    },
+  });
